@@ -36,7 +36,7 @@ def plot_moons_dataset(X, y, axes):
     plt.xlabel(r"$x_1$", fontsize=20)
     plt.ylabel(r"$x_2$", fontsize=20, rotation=0)
 
-    
+
 def plot_moons_predictions(clf, axes):
     x0s = np.linspace(axes[0], axes[1], 100)
     x1s = np.linspace(axes[2], axes[3], 100)
@@ -46,3 +46,16 @@ def plot_moons_predictions(clf, axes):
     y_decision = clf.decision_function(X).reshape(x0.shape)
     plt.contourf(x0, x1, y_pred, cmap=plt.cm.brg, alpha=0.2)
     plt.contourf(x0, x1, y_decision, cmap=plt.cm.brg, alpha=0.1)
+
+
+def plot_svm_regression(svm_reg, X, y, axes):
+    x1s = np.linspace(axes[0], axes[1], 100).reshape(100, 1)
+    y_pred = svm_reg.predict(x1s)
+    plt.plot(x1s, y_pred, "k-", linewidth=2, label=r"$\hat{y}$")
+    plt.plot(x1s, y_pred + svm_reg.epsilon, "k--")
+    plt.plot(x1s, y_pred - svm_reg.epsilon, "k--")
+    plt.scatter(X[svm_reg.support_], y[svm_reg.support_], s=180, facecolors='#FFAAAA')
+    plt.plot(X, y, "bo")
+    plt.xlabel(r"$x_1$", fontsize=18)
+    plt.legend(loc="upper left", fontsize=18)
+    plt.axis(axes)
