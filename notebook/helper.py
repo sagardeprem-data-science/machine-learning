@@ -2,7 +2,8 @@ from jupyslides import jupyslides
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 def show_slides(path):
     js = jupyslides(path)
@@ -97,3 +98,40 @@ def plot_regression_predictions(tree_reg, X, y, axes=[0, 1, -0.2, 1], ylabel="$y
         plt.ylabel(ylabel, fontsize=18, rotation=0)
     plt.plot(X, y, "b.")
     plt.plot(x1, y_pred, "r.-", linewidth=2, label=r"$\hat{y}$")
+
+
+def plot_gradient_descent(theta, eta, theta_path=None):
+    m = len(X_b)
+    plt.plot(X, y, "b.")
+    n_iterations = 1000
+    for iteration in range(n_iterations):
+        if iteration < 10:
+            y_predict = X_new_b.dot(theta)
+            style = "b-" if iteration > 0 else "r--"
+            plt.plot(X_new, y_predict, style)
+        gradients = 2/m * X_b.T.dot(X_b.dot(theta) - y)
+        theta = theta - eta * gradients
+        if theta_path is not None:
+            theta_path.append(theta)
+    plt.xlabel("$x_1$", fontsize=18)
+    plt.axis([0, 2, 0, 15])
+    plt.title(r"$\eta = {}$".format(eta), fontsize=16)
+
+
+def plot_linear_model(model_class, polynomial, alphas, **model_kargs):
+    for alpha, style in zip(alphas, ("b-", "g--", "r:")):
+        model = model_class(alpha, **model_kargs) if alpha > 0 else LinearRegression()
+        if polynomial:
+            model = Pipeline([
+                    ("poly_features", PolynomialFeatures(degree=10, include_bias=False)),
+                    ("std_scaler", StandardScaler()),
+                    ("regul_reg", model),
+                ])
+        model.fit(X, y)
+        y_new_regul = model.predict(X_new)
+        lw = 2 if alpha > 0 else 1
+        plt.plot(X_new, y_new_regul, style, linewidth=lw, label=r"$\alpha = {}$".format(alpha))
+    plt.plot(X, y, "b.", linewidth=3)
+    plt.legend(loc="upper left", fontsize=15)
+    plt.xlabel("$x_1$", fontsize=18)
+    plt.axis([0, 3, 0, 4])
